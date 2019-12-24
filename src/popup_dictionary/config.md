@@ -13,5 +13,6 @@ Please note that the following settings do not sync and require a restart to app
 - `ignoreMinLength` (regex): If the search term matches the regex, ignore default minimum length(3) the term must be. To ignore it for all characters: `"."`. To ignore it for non-latin characters: `"[^\\u0020-\\u024F]"`. Default:`""`.
 - `snippetsEnabled` (true/false): Whether or not to enable results drawn from any type of note in your collection. Default: `true`.
 - `snippetsExcludedFields` (list): List of fields to exclude from being shown in the note snippet section of the tooltip. Default: `["Note ID", "ID (hidden)"]`.
+- `snippetsExcludeNewNotes` (true/false): Whether or not to exclude snippet results from new notes. Default: `false`.
 - `snippetsLimitToCurrentDeck` (true/false): Whether or not to limit note snippet results to current deck. Default: `true`.
 - `snippetsResultsWarnLimit` (integer): Number of results above which to show a warning on the potential slowdowns they could cause. Set to `0` to disable warning. Default: `1000`.
