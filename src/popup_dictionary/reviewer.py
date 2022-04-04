@@ -115,11 +115,10 @@ def on_webview_will_set_content(
     # on the safe side
     web_content.body += popup_integrator
 
-def onNextCard(self, _old):
+def on_card_will_show(text, card, kind):
     """Make ignoreMinLength config data accessible to web"""
-    _old(self)
     ign = config["local"]["ignoreMinLength"]
-    self.web.eval("var ignoreLength = \"{}\"".format(ign))
+    return text + "<script>var ignoreLength = \"{}\"</script>".format(ign)
 
 def on_webview_did_receive_js_message(
     handled: Tuple[bool, Any], message: str, context: Union[Reviewer, Any]
@@ -150,10 +149,12 @@ def patch_reviewer():
     from aqt.gui_hooks import (
         webview_will_set_content,
         webview_did_receive_js_message,
+        card_will_show,
     )
 
     webview_will_set_content.append(on_webview_will_set_content)
     webview_did_receive_js_message.append(on_webview_did_receive_js_message)
+    card_will_show.append(on_card_will_show)
 
     _reviewer_patched = True
 
