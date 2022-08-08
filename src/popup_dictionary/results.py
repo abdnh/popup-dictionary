@@ -139,19 +139,21 @@ def get_note_snippets_for(term: str, ignore_nid: str) -> Union[List[str], bool, 
     logger.debug("getNoteSnippetsFor called")
     # exclude current note
     current_nid = mw.reviewer.card.note().id
-    exclusion_tokens = ["-nid:{}".format(current_nid)]
+    search_terms = ["-nid:{}".format(current_nid)]
 
     if ignore_nid:
-        exclusion_tokens.append("-nid:{}".format(ignore_nid))
+        search_terms.append("-nid:{}".format(ignore_nid))
 
     if conf["snippetsLimitToCurrentDeck"]:
-        exclusion_tokens.append("deck:current")
+        search_terms.append("deck:current")
 
     if conf["snippetsExcludeNewNotes"]:
-        exclusion_tokens.append("-is:new")
+        search_terms.append("-is:new")
+
+    search_terms.append(conf["snippetsAdditionalSearchTerms"])
 
     # construct query string
-    query = """"{}" {}""".format(term, " ".join(exclusion_tokens))
+    query = """"{}" {}""".format(term, " ".join(search_terms))
 
     # NOTE: performing the SQL query directly might be faster
     res = sorted(find_notes(collection=mw.col, query=query))

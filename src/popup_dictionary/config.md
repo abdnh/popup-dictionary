@@ -16,3 +16,4 @@ Please note that the following settings do not sync and require a restart to app
 - `snippetsExcludeNewNotes` (true/false): Whether or not to exclude snippet results from new notes. Default: `false`.
 - `snippetsLimitToCurrentDeck` (true/false): Whether or not to limit note snippet results to current deck. Default: `true`.
 - `snippetsResultsWarnLimit` (integer): Number of results above which to show a warning on the potential slowdowns they could cause. Set to `0` to disable warning. Default: `1000`.
+- `snippetsAdditionalSearchTerms`: Additional [search terms](https://docs.ankiweb.net/searching.html) to append to the snippets query.
