@@ -39,13 +39,17 @@ from typing import TYPE_CHECKING, Any, Optional, Tuple, Union
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMenu, QShortcut
 
+from anki.hooks import wrap
 from aqt import mw
+from aqt.qt import QWidget
 from aqt.reviewer import Reviewer
+from aqt.browser.previewer import Previewer
 
 from .browser import browse_to_nid
 from .config import config
 from .results import PYCMD_IDENTIFIER, get_content_for
 from .web import popup_integrator
+from .utils import get_card_view_context
 
 if TYPE_CHECKING:  # 2.1.22+
     from aqt.webview import AnkiWebView, WebContent
@@ -54,18 +58,18 @@ if TYPE_CHECKING:  # 2.1.22+
 # UI interaction ####
 
 
-def setup_shortcuts():
+def setup_shortcuts(widget: QWidget):
     QShortcut(  # type: ignore
         QKeySequence(config["local"]["generalHotkey"]),
-        mw,
+        widget,
         activated=on_lookup_triggered,
     )
 
-
 def on_lookup_triggered(*args):
-    if mw.state != "review":
+    card_view_context = get_card_view_context()
+    if isinstance(card_view_context.context, Reviewer) and mw.state != "review":
         return
-    mw.reviewer.web.eval("invokeTooltipAtSelectedElm();")
+    card_view_context.web.eval("invokeTooltipAtSelectedElm();")
 
 
 def on_webview_will_show_context_menu(webview: "AnkiWebView", menu: QMenu):
@@ -108,7 +112,7 @@ def webview_message_handler(message: str) -> Optional[str]:
 def on_webview_will_set_content(
     web_content: "WebContent", context: Union[Reviewer, Any]
 ):
-    if not isinstance(context, Reviewer):
+    if not isinstance(context, (Reviewer, Previewer)):
         return
 
     # Appending to body rather than using header. Not best practice, but let's stay
@@ -123,7 +127,7 @@ def on_card_will_show(text, card, kind):
 def on_webview_did_receive_js_message(
     handled: Tuple[bool, Any], message: str, context: Union[Reviewer, Any]
 ):
-    if not isinstance(context, Reviewer):
+    if not isinstance(context, (Reviewer, Previewer)):
         return handled
 
     if not message.startswith(PYCMD_IDENTIFIER):
@@ -168,4 +172,5 @@ def initialize_reviewer():
     profile_did_open.append(patch_reviewer)
     webview_will_show_context_menu.append(on_webview_will_show_context_menu)
 
-    setup_shortcuts()
+    setup_shortcuts(mw)
+    Previewer.__init__ = wrap(Previewer.__init__, lambda self, *args, **kwargs: setup_shortcuts(self))

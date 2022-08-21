@@ -41,6 +41,7 @@ from aqt.utils import askUser
 
 from .config import config
 from .libaddon.debug import logger
+from .utils import get_card_view_context
 
 if TYPE_CHECKING:
     from anki.collection import Collection
@@ -137,9 +138,11 @@ def get_note_snippets_for(term: str, ignore_nid: str) -> Union[List[str], bool, 
     conf = config["local"]
 
     logger.debug("getNoteSnippetsFor called")
+    search_terms = []
     # exclude current note
-    current_nid = mw.reviewer.card.note().id
-    search_terms = ["-nid:{}".format(current_nid)]
+    current_nid = get_card_view_context().nid
+    if current_nid:
+        search_terms = ["-nid:{}".format(current_nid)]
 
     if ignore_nid:
         search_terms.append("-nid:{}".format(ignore_nid))
